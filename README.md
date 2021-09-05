@@ -1,6 +1,6 @@
 # elm-zoned-time
 
-[![Build Status](https://travis-ci.org/arowM/elm-zoned-time.svg?branch=main)](https://travis-ci.org/arowM/elm-zoned-time)
+[![Build Status](https://api.travis-ci.com/arowM/elm-zoned-time.svg?branch=main&status=created)](https://app.travis-ci.com/github/arowM/elm-zoned-time)
 
 A library to handle zoned time.
 
