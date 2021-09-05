@@ -1,10 +1,10 @@
 {
   "private": true,
   "scripts": {
-    "format": "elm-format src",
+    "format": "elm-format src tests",
     "start": "elm-doc-preview",
-    "review": "elm-review --fix",
-    "test": "elm-review --fix && elm-verify-examples --fail-on-warn -r && elm-format --validate src && elm make --docs=/tmp/docs.json"
+    "review": "elm-review --fix src",
+    "test": "elm-review src && elm-verify-examples --fail-on-warn -r && elm-format --validate src tests && elm make --docs=/tmp/docs.json"
   },
   "dependencies": {
     "elm": "^0.19.1-5"
