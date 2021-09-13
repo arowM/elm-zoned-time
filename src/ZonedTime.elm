@@ -21,6 +21,10 @@ module ZonedTime exposing
     , getMinute
     , getSecond
     , getMillis
+    , resetHour
+    , resetMinute
+    , resetSecond
+    , resetMillis
     , isLeapYear
     , daysInYear
     , daysInMonth
@@ -61,6 +65,14 @@ module ZonedTime exposing
 @docs getMinute
 @docs getSecond
 @docs getMillis
+
+
+# Reset functions
+
+@docs resetHour
+@docs resetMinute
+@docs resetSecond
+@docs resetMillis
 
 
 # Utilities
@@ -476,6 +488,7 @@ mapPosix f (ZonedTime zonedTime) =
 
 
 {-| Set time to midnight of the day in the time zone.
+Shorthand for `resetMillis >> resetSecond >> resetMinute >> resetHour`.
 
     import Time
 
@@ -519,27 +532,8 @@ mapPosix f (ZonedTime zonedTime) =
 
 -}
 setToMidnight : ZonedTime -> ZonedTime
-setToMidnight ((ZonedTime zonedTime_) as zonedTime) =
-    ZonedTime
-        { zonedTime_
-            | time =
-                zonedTime_.time
-                    |> Time.posixToMillis
-                    |> (\millis ->
-                            millis
-                                - getHour zonedTime
-                                * 60
-                                * 60
-                                * 1000
-                                - getMinute zonedTime
-                                * 60
-                                * 1000
-                                - getSecond zonedTime
-                                * 1000
-                                - getMillis zonedTime
-                                |> Time.millisToPosix
-                       )
-        }
+setToMidnight =
+    resetMillis >> resetSecond >> resetMinute >> resetHour
 
 
 
@@ -597,3 +591,47 @@ getMillis =
 getHelper : (Time.Zone -> Posix -> a) -> ZonedTime -> a
 getHelper f (ZonedTime { zone, time }) =
     f zone time
+
+
+
+-- Reset functions
+
+
+{-| Reset the hour part of `ZonedTime` to zero.
+
+Shorthand for `\time -> addHours (negate <| getHour time) time`.
+
+-}
+resetHour : ZonedTime -> ZonedTime
+resetHour =
+    \time -> addHours (negate <| getHour time) time
+
+
+{-| Reset the minute part of `ZonedTime` to zero.
+
+Shorthand for `\time -> addMinutes (negate <| getMinute time) time`.
+
+-}
+resetMinute : ZonedTime -> ZonedTime
+resetMinute =
+    \time -> addMinutes (negate <| getMinute time) time
+
+
+{-| Reset the second part of `ZonedTime` to zero.
+
+Shorthand for `\time -> addSeconds (negate <| getSecond time) time`.
+
+-}
+resetSecond : ZonedTime -> ZonedTime
+resetSecond =
+    \time -> addSeconds (negate <| getSecond time) time
+
+
+{-| Reset the millis part of `ZonedTime` to zero.
+
+Shorthand for `\time -> addMillis (negate <| getMillis time) time`.
+
+-}
+resetMillis : ZonedTime -> ZonedTime
+resetMillis =
+    \time -> addMillis (negate <| getMillis time) time

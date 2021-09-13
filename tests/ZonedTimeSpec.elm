@@ -12,8 +12,16 @@ import ZonedTime exposing (ZonedTime)
 suite : Test
 suite =
     describe "test properties"
-        [ testFromGregorianUtc
-        , testSetToMidnight
+        [ describe "Test encode/decode behaviour."
+            [ testFromGregorianUtc
+            ]
+        , describe "Test reset functions."
+            [ testResetHour
+            , testResetMinute
+            , testResetSecond
+            , testResetMillis
+            , testSetToMidnight
+            ]
         ]
 
 
@@ -39,9 +47,125 @@ testFromGregorianUtc =
                 (Just posix)
 
 
+testResetHour : Test
+testResetHour =
+    fuzz2 zoneFuzzer posixFuzzer "resetHour should generate proper time." <|
+        \zone posix ->
+            let
+                target : ZonedTime
+                target =
+                    ZonedTime.fromPosix zone posix
+                        |> ZonedTime.resetHour
+            in
+            Expect.equal
+                { year = ZonedTime.getYear target
+                , month = ZonedTime.getMonth target
+                , day = ZonedTime.getDay target
+                , hour = ZonedTime.getHour target
+                , minute = ZonedTime.getMinute target
+                , second = ZonedTime.getSecond target
+                , millis = ZonedTime.getMillis target
+                }
+                { year = Time.toYear zone posix
+                , month = Time.toMonth zone posix
+                , day = Time.toDay zone posix
+                , hour = 0
+                , minute = Time.toMinute zone posix
+                , second = Time.toSecond zone posix
+                , millis = Time.toMillis zone posix
+                }
+
+
+testResetMinute : Test
+testResetMinute =
+    fuzz2 zoneFuzzer posixFuzzer "resetMinute should generate proper time." <|
+        \zone posix ->
+            let
+                target : ZonedTime
+                target =
+                    ZonedTime.fromPosix zone posix
+                        |> ZonedTime.resetMinute
+            in
+            Expect.equal
+                { year = ZonedTime.getYear target
+                , month = ZonedTime.getMonth target
+                , day = ZonedTime.getDay target
+                , hour = ZonedTime.getHour target
+                , minute = ZonedTime.getMinute target
+                , second = ZonedTime.getSecond target
+                , millis = ZonedTime.getMillis target
+                }
+                { year = Time.toYear zone posix
+                , month = Time.toMonth zone posix
+                , day = Time.toDay zone posix
+                , hour = Time.toHour zone posix
+                , minute = 0
+                , second = Time.toSecond zone posix
+                , millis = Time.toMillis zone posix
+                }
+
+
+testResetSecond : Test
+testResetSecond =
+    fuzz2 zoneFuzzer posixFuzzer "resetSecond should generate proper time." <|
+        \zone posix ->
+            let
+                target : ZonedTime
+                target =
+                    ZonedTime.fromPosix zone posix
+                        |> ZonedTime.resetSecond
+            in
+            Expect.equal
+                { year = ZonedTime.getYear target
+                , month = ZonedTime.getMonth target
+                , day = ZonedTime.getDay target
+                , hour = ZonedTime.getHour target
+                , minute = ZonedTime.getMinute target
+                , second = ZonedTime.getSecond target
+                , millis = ZonedTime.getMillis target
+                }
+                { year = Time.toYear zone posix
+                , month = Time.toMonth zone posix
+                , day = Time.toDay zone posix
+                , hour = Time.toHour zone posix
+                , minute = Time.toMinute zone posix
+                , second = 0
+                , millis = Time.toMillis zone posix
+                }
+
+
+testResetMillis : Test
+testResetMillis =
+    fuzz2 zoneFuzzer posixFuzzer "resetMillis should generate proper time." <|
+        \zone posix ->
+            let
+                target : ZonedTime
+                target =
+                    ZonedTime.fromPosix zone posix
+                        |> ZonedTime.resetMillis
+            in
+            Expect.equal
+                { year = ZonedTime.getYear target
+                , month = ZonedTime.getMonth target
+                , day = ZonedTime.getDay target
+                , hour = ZonedTime.getHour target
+                , minute = ZonedTime.getMinute target
+                , second = ZonedTime.getSecond target
+                , millis = ZonedTime.getMillis target
+                }
+                { year = Time.toYear zone posix
+                , month = Time.toMonth zone posix
+                , day = Time.toDay zone posix
+                , hour = Time.toHour zone posix
+                , minute = Time.toMinute zone posix
+                , second = Time.toSecond zone posix
+                , millis = 0
+                }
+
+
 testSetToMidnight : Test
 testSetToMidnight =
-    fuzz2 zoneFuzzer posixFuzzer "setToMidnight should generate midnight for given time zone." <|
+    fuzz2 zoneFuzzer posixFuzzer "setToMidnight should generate proper time." <|
         \zone posix ->
             let
                 target : ZonedTime
@@ -50,13 +174,17 @@ testSetToMidnight =
                         |> ZonedTime.setToMidnight
             in
             Expect.equal
-                { day = ZonedTime.getDay target
+                { year = ZonedTime.getYear target
+                , month = ZonedTime.getMonth target
+                , day = ZonedTime.getDay target
                 , hour = ZonedTime.getHour target
                 , minute = ZonedTime.getMinute target
                 , second = ZonedTime.getSecond target
                 , millis = ZonedTime.getMillis target
                 }
-                { day = Time.toDay zone posix
+                { year = Time.toYear zone posix
+                , month = Time.toMonth zone posix
+                , day = Time.toDay zone posix
                 , hour = 0
                 , minute = 0
                 , second = 0
@@ -82,3 +210,8 @@ zoneFuzzer =
         , ( 3, Fuzz.constant <| TimeZone.america__los_angeles () )
         , ( 1, Fuzz.constant <| TimeZone.asia__tokyo () )
         ]
+
+
+zonedTimeFuzzer : Fuzzer ZonedTime
+zonedTimeFuzzer =
+    Fuzz.map2 ZonedTime.fromPosix zoneFuzzer posixFuzzer
