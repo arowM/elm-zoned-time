@@ -3,7 +3,7 @@
     "name": "arowM/elm-zoned-time",
     "summary": "A brief library for zoned time.",
     "license": "MIT",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "exposed-modules": [
         "ZonedTime"
     ],
